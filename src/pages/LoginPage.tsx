@@ -3,7 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import logo from "@/assets/logo.jpeg";
 
 export default function LoginPage() {
   const { login, isLoading, error } = useAuth();
@@ -27,13 +29,14 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-sm animate-fade-in">
         {/* Brand */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
-            <Lock className="w-6 h-6 text-primary" />
-          </div>
+          <img src={logo} alt="VentureMond" className="w-14 h-14 rounded-xl mx-auto mb-4" />
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             VentureMond
           </h1>
