@@ -42,7 +42,7 @@ export default function LoginPage() {
             alt="VentureMond"
             className="h-12 mx-auto mb-4 object-contain"
           />
-          <p className="text-sm text-muted-foreground mt-1">Admin Dashboard</p>
+          <p className="text-sm text-muted-foreground mt-1">VentureMond Leads Hub</p>
         </div>
 
         {/* Form */}
