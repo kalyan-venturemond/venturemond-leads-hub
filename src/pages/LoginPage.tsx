@@ -93,7 +93,6 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-xs text-muted-foreground mt-8">
-          Internal use only • admin@venturemond.com / admin123
         </p>
       </div>
     </div>
