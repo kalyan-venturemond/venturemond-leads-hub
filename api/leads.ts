@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getDatabase } from './lib/mongodb';
+import { getDatabase } from './lib/mongodb.js';
 import { ObjectId } from 'mongodb';
 
 // Type definitions
