@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #0051cc;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 VentureMond API Test</h1>
+        <p>Test your MongoDB API connection</p>
+
+        <div>
+            <button onclick="testGetLeads()">📊 GET /api/leads</button>
+            <button onclick="testHealth()">❤️ GET /api/health</button>
+        </div>
+
+        <div id="status"></div>
+        <pre id="output">Click a button to test the API...</pre>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+            statusDiv.textContent = message;
+        }
+
+        function showOutput(data) {
+            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function testGetLeads() {
+            try {
+                showStatus('🔄 Fetching leads...');
+                const response = await fetch(`${API_URL}/api/leads`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus(`✅ Success! Found ${data.data.length} leads`);
+                    showOutput(data);
+                } else {
+                    showStatus('❌ API returned error', true);
+                    showOutput(data);
+                }
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, true);
+                showOutput({ error: error.message });
+            }
+        }
+
+        async function testHealth() {
+            try {
+                showStatus('🔄 Checking health...');
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                showStatus('✅ API is healthy!');
+                showOutput(data);
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, true);
+                showOutput({ error: error.message });
+            }
+        }
+    </script>
+</body>
+
+</html>

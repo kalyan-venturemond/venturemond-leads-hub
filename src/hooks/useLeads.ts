@@ -1,15 +1,67 @@
 import { useState, useMemo, useCallback } from "react";
-import { mockLeads } from "@/data/mockLeads";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { leadsApi } from "@/services/api";
 import { Lead, LeadStatus } from "@/types/lead";
+import { useToast } from "@/hooks/use-toast";
 
 export function useLeads() {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "All">("All");
   const [serviceFilter, setServiceFilter] = useState<string>("All");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  // Fetch leads from API
+  const { data: leads = [], isLoading, error } = useQuery({
+    queryKey: ['leads'],
+    queryFn: leadsApi.getLeads,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  // Mutation for updating lead status
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: LeadStatus }) =>
+      leadsApi.updateLeadStatus(id, status),
+    onMutate: async ({ id, status }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['leads'] });
+
+      // Snapshot the previous value
+      const previousLeads = queryClient.getQueryData<Lead[]>(['leads']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<Lead[]>(['leads'], (old) =>
+        old?.map((lead) => (lead.id === id ? { ...lead, status } : lead)) || []
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousLeads };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousLeads) {
+        queryClient.setQueryData(['leads'], context.previousLeads);
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update lead status. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Lead status updated successfully.",
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
+  });
 
   const services = useMemo(() => {
-    const s = new Set(leads.map((l) => l.service));
+    const s = new Set(leads.map((l) => l.service).filter(Boolean));
     return ["All", ...Array.from(s)];
   }, [leads]);
 
@@ -28,10 +80,8 @@ export function useLeads() {
   }, [leads, search, statusFilter, serviceFilter]);
 
   const updateStatus = useCallback((id: string, status: LeadStatus) => {
-    setLeads((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, status } : l))
-    );
-  }, []);
+    updateStatusMutation.mutate({ id, status });
+  }, [updateStatusMutation]);
 
   const stats = useMemo(() => {
     const now = Date.now();
@@ -41,7 +91,9 @@ export function useLeads() {
     ).length;
     const serviceCounts: Record<string, number> = {};
     leads.forEach((l) => {
-      serviceCounts[l.service] = (serviceCounts[l.service] || 0) + 1;
+      if (l.service) {
+        serviceCounts[l.service] = (serviceCounts[l.service] || 0) + 1;
+      }
     });
     const topService = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
     return { total: leads.length, newLeads: newLeadsCount, topService };
@@ -59,6 +111,8 @@ export function useLeads() {
     services,
     updateStatus,
     stats,
+    isLoading,
+    error,
   };
 }
 

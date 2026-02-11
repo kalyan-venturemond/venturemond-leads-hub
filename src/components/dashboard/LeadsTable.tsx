@@ -36,7 +36,7 @@ export default function LeadsTable({ leads, onViewDetails, onUpdateStatus }: Lea
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border">
-            {["Date", "Name", "Company", "Service", "Budget", "Status", "Actions"].map((h) => (
+            {["Date", "Name", "Email", "Company", "Division", "Service", "Budget", "Status", "Actions"].map((h) => (
               <th
                 key={h}
                 className="text-left text-xs text-muted-foreground font-medium uppercase tracking-wider px-4 py-3"
@@ -68,7 +68,13 @@ export default function LeadsTable({ leads, onViewDetails, onUpdateStatus }: Lea
                 </div>
               </td>
               <td className="px-4 py-3.5 text-muted-foreground">
+                {lead.email || "—"}
+              </td>
+              <td className="px-4 py-3.5 text-muted-foreground font-medium">
                 {lead.company || "—"}
+              </td>
+              <td className="px-4 py-3.5 text-muted-foreground">
+                {lead.division ? (lead.division.includes("Services") ? "Services" : "Studio") : "—"}
               </td>
               <td className="px-4 py-3.5 text-muted-foreground">{lead.service}</td>
               <td className="px-4 py-3.5">

@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Phone, Building2, Calendar, Clock, DollarSign, Layers, FileText, X } from "lucide-react";
+import { Mail, Phone, Building2, Calendar, Clock, DollarSign, Layers, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 interface LeadDetailPanelProps {
@@ -34,16 +34,11 @@ export default function LeadDetailPanel({ lead, open, onClose, onUpdateStatus }:
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="bg-card border-l border-border w-full sm:max-w-lg overflow-y-auto p-0">
         <SheetHeader className="p-6 pb-4 border-b border-border">
-          <div className="flex items-start justify-between">
-            <div>
-              <SheetTitle className="text-lg font-semibold text-foreground">
-                {lead.name}
-              </SheetTitle>
-              <p className="text-sm text-muted-foreground mt-0.5">{lead.company || "No company"}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground -mr-2 -mt-1">
-              <X className="w-4 h-4" />
-            </Button>
+          <div>
+            <SheetTitle className="text-lg font-semibold text-foreground">
+              {lead.name}
+            </SheetTitle>
+            <p className="text-sm text-muted-foreground mt-0.5">{lead.company || "No company"}</p>
           </div>
         </SheetHeader>
 
@@ -76,7 +71,11 @@ export default function LeadDetailPanel({ lead, open, onClose, onUpdateStatus }:
             <h3 className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Project</h3>
             <div className="grid grid-cols-2 gap-3">
               <DetailItem icon={Layers} label="Service" value={lead.service} />
-              <DetailItem icon={Building2} label="Division" value={lead.division} />
+              <DetailItem
+                icon={Building2}
+                label="Division"
+                value={lead.division ? (lead.division.includes("Services") ? "Services" : "Studio") : "—"}
+              />
               <DetailItem icon={DollarSign} label="Budget" value={lead.budget} />
               <DetailItem icon={Clock} label="Timeline" value={lead.timeline} />
             </div>

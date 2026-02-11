@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
-import logo from "@/assets/logo.jpeg";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function LoginPage() {
   const { login, isLoading, error } = useAuth();
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await login(email, password);
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function LoginPage() {
         handleSubmit(e as any);
       }
     };
-    return () => {};
+    return () => { };
   }, []);
 
   return (
@@ -36,10 +37,11 @@ export default function LoginPage() {
       <div className="w-full max-w-sm animate-fade-in">
         {/* Brand */}
         <div className="text-center mb-10">
-          <img src={logo} alt="VentureMond" className="w-14 h-14 rounded-xl mx-auto mb-4" />
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            VentureMond
-          </h1>
+          <img
+            src={theme === "dark" ? "/logo_green.png" : "/logo_dark.png"}
+            alt="VentureMond"
+            className="h-12 mx-auto mb-4 object-contain"
+          />
           <p className="text-sm text-muted-foreground mt-1">Admin Dashboard</p>
         </div>
 
