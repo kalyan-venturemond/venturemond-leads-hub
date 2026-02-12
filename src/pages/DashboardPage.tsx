@@ -19,6 +19,7 @@ export default function DashboardPage() {
     setServiceFilter,
     services,
     updateStatus,
+    deleteLead,
     stats,
   } = useLeads();
 
@@ -105,9 +106,8 @@ export default function DashboardPage() {
         lead={selectedLead}
         open={panelOpen}
         onClose={handleClosePanel}
-        onUpdateStatus={(id, status) => {
-          updateStatus(id, status);
-        }}
+        onUpdateStatus={updateStatus}
+        onDelete={deleteLead}
       />
     </div>
   );

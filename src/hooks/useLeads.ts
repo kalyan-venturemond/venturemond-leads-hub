@@ -60,6 +60,47 @@ export function useLeads() {
     },
   });
 
+  // Mutation for deleting a lead
+  const deleteLeadMutation = useMutation({
+    mutationFn: (id: string) => leadsApi.deleteLead(id),
+    onMutate: async (id) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['leads'] });
+
+      // Snapshot the previous value
+      const previousLeads = queryClient.getQueryData<Lead[]>(['leads']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<Lead[]>(['leads'], (old) =>
+        old?.filter((lead) => lead.id !== id) || []
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousLeads };
+    },
+    onError: (err, id, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousLeads) {
+        queryClient.setQueryData(['leads'], context.previousLeads);
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete lead. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Lead deleted successfully.",
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
+  });
+
   const services = useMemo(() => {
     const s = new Set(leads.map((l) => l.service).filter(Boolean));
     return ["All", ...Array.from(s)];
@@ -82,6 +123,10 @@ export function useLeads() {
   const updateStatus = useCallback((id: string, status: LeadStatus) => {
     updateStatusMutation.mutate({ id, status });
   }, [updateStatusMutation]);
+
+  const deleteLead = useCallback((id: string) => {
+    deleteLeadMutation.mutate(id);
+  }, [deleteLeadMutation]);
 
   const stats = useMemo(() => {
     const now = Date.now();
@@ -110,6 +155,7 @@ export function useLeads() {
     setServiceFilter,
     services,
     updateStatus,
+    deleteLead,
     stats,
     isLoading,
     error,

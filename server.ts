@@ -144,6 +144,47 @@ app.patch('/api/leads', async (req, res) => {
     }
 });
 
+app.delete('/api/leads', async (req, res) => {
+    try {
+        const { id } = req.query;
+
+        if (!id || typeof id !== 'string') {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing id',
+            });
+        }
+
+        const db = await getDatabase();
+        // Use the same type as defined earlier in the file or 'any' if not exported, but it is defined.
+        // Actually interface MongoLeadDocument is defined locally in server.ts
+        const collection = db.collection<MongoLeadDocument>('contacts');
+
+        const result = await collection.deleteOne({
+            _id: new ObjectId(id),
+        });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Lead not found',
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Lead deleted successfully',
+        });
+    } catch (error) {
+        console.error('Error deleting lead:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal Server Error',
+            message: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

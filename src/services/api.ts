@@ -66,4 +66,31 @@ export const leadsApi = {
             throw error;
         }
     },
+
+    /**
+     * Delete a lead
+     */
+    async deleteLead(id: string): Promise<void> {
+        try {
+            const response = await fetch(`${API_URL}/leads?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result: ApiResponse<void> = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to delete lead');
+            }
+        } catch (error) {
+            console.error('Error deleting lead:', error);
+            throw error;
+        }
+    },
 };

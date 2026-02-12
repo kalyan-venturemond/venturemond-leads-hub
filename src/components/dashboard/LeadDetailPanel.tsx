@@ -15,7 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Mail, Phone, Building2, Calendar, Clock, DollarSign, Layers, FileText } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Mail, Phone, Building2, Calendar, Clock, DollarSign, Layers, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface LeadDetailPanelProps {
@@ -23,11 +34,12 @@ interface LeadDetailPanelProps {
   open: boolean;
   onClose: () => void;
   onUpdateStatus: (id: string, status: LeadStatus) => void;
+  onDelete: (id: string) => void;
 }
 
 const statuses: LeadStatus[] = ["New", "Contacted", "Qualified", "Closed"];
 
-export default function LeadDetailPanel({ lead, open, onClose, onUpdateStatus }: LeadDetailPanelProps) {
+export default function LeadDetailPanel({ lead, open, onClose, onUpdateStatus, onDelete }: LeadDetailPanelProps) {
   if (!lead) return null;
 
   return (
@@ -135,6 +147,35 @@ export default function LeadDetailPanel({ lead, open, onClose, onUpdateStatus }:
                 Email Lead
               </Button>
             </a>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10">
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the lead
+                    <strong> {lead.name}</strong> and remove their data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => {
+                      onDelete(lead.id);
+                      onClose();
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </SheetContent>

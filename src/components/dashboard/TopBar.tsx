@@ -19,9 +19,7 @@ export default function TopBar() {
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground hidden sm:inline">
-          {user?.email}
-        </span>
+
         <ThemeToggle />
         <Button
           variant="ghost"

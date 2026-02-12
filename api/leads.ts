@@ -113,6 +113,7 @@ export default async function handler(
                     });
                 }
 
+                // ... update logic
                 const result = await collection.updateOne(
                     { _id: new ObjectId(id) },
                     { $set: { status, updatedAt: new Date() } }
@@ -128,6 +129,33 @@ export default async function handler(
                 return res.status(200).json({
                     success: true,
                     message: 'Lead status updated',
+                });
+            }
+
+            case 'DELETE': {
+                const { id } = req.query;
+
+                if (!id || typeof id !== 'string') {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Missing id',
+                    });
+                }
+
+                const result = await collection.deleteOne({
+                    _id: new ObjectId(id),
+                });
+
+                if (result.deletedCount === 0) {
+                    return res.status(404).json({
+                        success: false,
+                        error: 'Lead not found',
+                    });
+                }
+
+                return res.status(200).json({
+                    success: true,
+                    message: 'Lead deleted successfully',
                 });
             }
 
